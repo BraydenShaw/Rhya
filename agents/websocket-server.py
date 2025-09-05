@@ -5,9 +5,7 @@ Agent WebSocket 服务器
 """
 
 import os
-os.environ["OPENAI_API_KEY"] = "sk-HuNr0SKGnuQMb0b67zF2uLMWdk3gponUIW3NY6PUy3lu6QZW"
-os.environ["OPENAI_API_BASE"] = 'https://api.openai-proxy.org/v1'
-
+from dotenv import load_dotenv  # 导入 python-dotenv
 import asyncio
 import json
 import logging
@@ -19,7 +17,7 @@ import uuid
 import subprocess
 import shlex
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, UploadFile, File  # 新增 UploadFile, File
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -29,26 +27,25 @@ from google.adk import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
-# 新增导入：阿里云 OSS SDK
-import oss2  # 请确保已安装：pip install oss2
+import oss2  # 阿里云 OSS SDK
 
-# Import configuration
 from config.agent_config import agentconfig
 
-# Get agent from configuration
-rootagent = agentconfig.get_agent()
+load_dotenv()
 
-# 配置日志
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+os.environ["OPENAI_API_BASE"] = os.getenv("OPENAI_API_BASE")
+
+OSS_ACCESS_KEY_ID = os.getenv("OSS_ACCESS_KEY_ID")
+OSS_ACCESS_KEY_SECRET = os.getenv("OSS_ACCESS_KEY_SECRET")
+OSS_ENDPOINT = os.getenv("OSS_ENDPOINT")
+OSS_BUCKET_NAME = os.getenv("OSS_BUCKET_NAME")
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ...（中间代码保持不变，包括 dataclass、Session、app 定义、CORS、中间件、ConnectionContext、SessionManager 等）
-
-# 新增：阿里云 OSS 配置（请替换凭证）
-OSS_ACCESS_KEY_ID = 'LTAI5t6WoiTrDt62UR3qLUvx'  # 替换为您的 AccessKey ID
-OSS_ACCESS_KEY_SECRET = '3klBwnu69erl2Wvm1GtXsbcuDKRql8'  # 替换为您的 AccessKey Secret
-OSS_ENDPOINT = 'https://oss-cn-beijing.aliyuncs.com'  # 外网 Endpoint，支持 HTTPS
-OSS_BUCKET_NAME = 'butterflyartiscope'  # Bucket 名称
+# Get agent from configuration
+rootagent = agentconfig.get_agent()
 
 # 初始化 OSS 客户端
 oss_auth = oss2.Auth(OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET)
