@@ -1,6 +1,0 @@
-nest_asyncio
-python-dotenv
-numpy
-google-adk
-science-agent-sdk
-litellm
